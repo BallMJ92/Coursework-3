@@ -26,7 +26,6 @@ def IncrementalCount(counts, line, charList):
 
     return counts
 
-
 def CountDepth(lines):
     # Implement this function for Step 2
     characters.clear()
@@ -71,10 +70,29 @@ def CountDepth(lines):
 
 def CreatePythonCode(filename):
     # Implement this function for Step 3
+    inFileLines = []
+    outFileLines = []
+    cDepth = []
+    file = ""
 
-    """with open(filename+'.bpy', 'r') as inFile:
+    with open(filename+'.bpy', 'r') as inFile:
+        for i in inFile:
+            inFileLines.append(i)
 
-    return ()"""
+    inFile.close()
+    for i in inFileLines:
+        cDepth = CountDepth(inFileLines)
+
+    print(cDepth)
+
+
+    with open("testing2"+'.py', 'w') as outFile:
+        for i in inFileLines:
+            outFile.write(i)
+
+    outFile.close()
+
+    return ()
 
 
 def IgnoreCommentsAndStrings(s):
