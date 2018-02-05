@@ -28,52 +28,25 @@ def IncrementalCount(counts, line, charList):
 
 def CountDepth(lines):
     # Implement this function for Step 2
-    characters.clear()
-    counts = {}
-    charList = "{}"
-    depth = 0
-    depths = []
-    bracketList = []
-    counts = IncrementalCount(counts, str(lines), charList)
-    isEven = 0
+    counts, chars, lineList = {}, "{}", []
 
-    for key, value in counts.items():
-        bracketList.append(key)
-        # Assigning the values of both left and right brackets to isEven variable
-        isEven += value
+    for line in lines:
+        counts = IncrementalCount(counts, line, chars)
+        depth = counts[chars[0]] - counts[chars[1]]
+        lineList.append(depth) if depth>=1 else lineList.append(0)
 
-    # Adding lines to list to iterate over
-    lineList = [i for i in lines]
+    return(lineList)
 
-    for i in range(0, len(lineList)):
-        # Checking if there is an even amount of left and right brackets
-        if isEven % 2 == 0:
-            # Checking if line contains only a right bracket
-            if lineList[i].count(bracketList[0]) >= 1 and lineList[i].count(bracketList[1]) == 0:
-                depth += 1
-                depths.append(depth)
-            # Checking if line contains only a left bracket
-            elif lineList[i].count(bracketList[1]) >= 1 and lineList[i].count(bracketList[0]) == 0:
-                depth -= 1
-                depths.append(depth)
-            # Checking if line contains 1 or more left and right brackets
-            elif lineList[i].count(bracketList[0]) >= 1 and lineList[i].count(bracketList[1]) >= 1:
-                depths.append(depth)
-            # If line does not contain brackets append last depth value
-            else:
-                depths.append(depth)
-        else:
-            print("Error in code formatting")
-            break
-
-    return depths
 
 def CreatePythonCode(filename):
     # Implement this function for Step 3
     inFileLines = []
     outFileLines = []
     cDepth = []
+    indentation = []
     file = ""
+    characters = ("{", "}")
+    replacements = (":", "")
 
     with open(filename+'.bpy', 'r') as inFile:
         for i in inFile:
@@ -85,9 +58,34 @@ def CreatePythonCode(filename):
 
     print(cDepth)
 
+    for i in inFileLines:
+        x = len(i) - len(i.lstrip(" "))
+        indentation.append(x)
 
-    with open("testing2"+'.py', 'w') as outFile:
-        for i in inFileLines:
+
+
+
+    inFileLines = [i.lstrip(" ") for i in inFileLines]
+
+    for i in inFileLines:
+        if i[len(i) - 3:len(i)] == "{}\n":
+            outFileLines.append(i)
+        else:
+            n = i.replace("{", ":").replace("}", "")
+            outFileLines.append(n)
+
+
+    for i in range(len(cDepth)):
+        for x in outFileLines:
+            if cDepth[i] > 1 and cDepth[i-1] == 1:
+                print("yes")
+                #x.insert(0, "   "*cDepth[i])
+
+
+
+
+    with open("testing3"+'.py', 'w') as outFile:
+        for i in outFileLines:
             outFile.write(i)
 
     outFile.close()
