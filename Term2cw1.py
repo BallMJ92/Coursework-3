@@ -1,30 +1,11 @@
-# Be sure to read the coursework submission section in the coursework document
-
-"""Saving values from IncrementalCount function outside of function so list does not get cleared
-each time function is ran"""
-characters = []
-
-
 def IncrementalCount(counts, line, charList):
-    # Implement this function for Step 1
-
-    # Creating list to hold individual characters of line and charList
-    lineList = [l for l in line]
-    chars = [c for c in charList]
-
-    # Checking if chars in lineList appear in chars list and adding them to global list characters
-    for i in range(0, len(lineList)):
-        if lineList[i] in chars:
-            characters.append(lineList[i])
-
-    # Creating a dictionary from charList with key as chars in charList and value as number of appearances of chars
-    counts = dict.fromkeys(charList, 0)
-    for i in range(0, len(characters)):
-        if characters[i] in counts:
-            # Incrementing key value if char appears
-            counts[characters[i]] = counts.get(characters[i], 0) + 1
-
-    return counts
+    for i in charList:
+        if i not in counts: 
+            counts[i] = 0
+    for i in line:
+        if i in counts: 
+            counts[i] += 1
+    return(counts)
 
 def CountDepth(lines):
     # Implement this function for Step 2
@@ -33,71 +14,129 @@ def CountDepth(lines):
     for line in lines:
         counts = IncrementalCount(counts, line, chars)
         depth = counts[chars[0]] - counts[chars[1]]
-        lineList.append(depth) if depth>=1 else lineList.append(0)
+        lineList.append(depth) if depth >= 1 else lineList.append(0)
 
     return(lineList)
 
-
 def CreatePythonCode(filename):
-    # Implement this function for Step 3
-    inFileLines = []
-    outFileLines = []
-    cDepth = []
-    indentation = []
-    file = ""
-    characters = ("{", "}")
-    replacements = (":", "")
+    inFileLines, outFileLines = [], []
 
-    with open(filename+'.bpy', 'r') as inFile:
+    with open(filename + '.bpy', 'r') as inFile:
         for i in inFile:
             inFileLines.append(i)
-
     inFile.close()
-    for i in inFileLines:
-        cDepth = CountDepth(inFileLines)
 
-    print(cDepth)
+    listDepth = CountDepth(inFileLines)
+    x = 0
 
-    for i in inFileLines:
-        x = len(i) - len(i.lstrip(" "))
-        indentation.append(x)
+    for i in range(0, len(inFileLines)):
+        inFileLines[i] = inFileLines[i].lstrip(" ")
+        if listDepth[i] - x == 1:
+            lineSplit = inFileLines[i].split("{")
+            inFileLines[i] = x * "   " + lineSplit[0] + ":\n"
+        elif x - listDepth[i] == 1:
+            lineSplit = inFileLines[i].split("}")
+            if lineSplit[0] != "":
+                inFileLines[i] = x * "   " + lineSplit[0] + "\n"
+            else:
+                inFileLines[i] = lineSplit[0]
+        elif listDepth[i] == x:
+            inFileLines[i] = x * "   " + inFileLines[i]
+        x = listDepth[i]
+        outFileLines.append("%s" % inFileLines[i])
 
-
-
-
-    inFileLines = [i.lstrip(" ") for i in inFileLines]
-
-    for i in inFileLines:
-        if i[len(i) - 3:len(i)] == "{}\n":
-            outFileLines.append(i)
-        else:
-            n = i.replace("{", ":").replace("}", "")
-            outFileLines.append(n)
-
-
-    for i in range(len(cDepth)):
-        for x in outFileLines:
-            if cDepth[i] > 1 and cDepth[i-1] == 1:
-                print("yes")
-                #x.insert(0, "   "*cDepth[i])
-
-
-
-
-    with open("testing3"+'.py', 'w') as outFile:
+    with open(filename + '.py', 'w') as outFile:
         for i in outFileLines:
             outFile.write(i)
-
     outFile.close()
-
-    return ()
-
+    return()
 
 def IgnoreCommentsAndStrings(s):
-    # Implement this function for Step 4
-    return ()
+    lineList = []
+    string1, string2, string3, splitString = str(), str(), str(), str()
+    flag, flag1 = 0, 0
 
+    for i in range(len(s)):
+        if s[i] == "\"":
+            flag += 1
+        if s[i] == "#" and flag % 2 == 0:
+            flag1 = 1
+        if flag1 == 0:
+            splitString +=s[i]
+        else:
+            string3 += s[i]
+    flag = 0
+    for i in splitString:
+        if i != "\"":
+            if flag % 2 == 0:
+                string1 += i
+            string2 += i
+        else:
+            flag += 1
+            string2 += i
+
+    lineList.append(string1)
+    lineList.append(string2)
+    lineList.append(string3)
+
+    return(lineList)
 
 def CreatePythonCodeAdvanced(filename):
-    # Implement this function for Step 5
-    return ()
+    inFileTwo = open("middlefile.bpy","r")
+    lines, linesTwo, lineListOne, lineListTwo, outFileLines = [], [], [], [], []
+    original = 0
+
+    with open(filename + ".bpy", "r") as inFileOne:
+        for i in inFileOne:
+            lines.append(i)
+    inFileOne.close()
+
+    with open("middlefile.bpy","w") as outFileOne:
+        for line in lines:
+            lineListOne = IgnoreCommentsAndStrings(line)
+            lineListTwo.append(lineListOne[0])
+            outFileOne.write("%s" % (lineListOne[1]+lineListOne[2]))
+    outFileOne.close()
+
+    list2 = CountDepth(lineListTwo)
+
+    with open(filename + ".bpy", "r") as inFileTwo:
+        for i in inFileTwo:
+            linesTwo.append(i)
+    inFileTwo.close()
+
+    for i in range(len(linesTwo)):
+        string1 = str()
+        flag = 0
+        linesTwo[i] = linesTwo[i].strip(" ")
+        if list2[i] - original == 1:
+            for x in linesTwo[i]:
+                if x == "\"":
+                    flag += 1
+                if flag % 2 == 0 and x == "{":
+                    x = ":"
+                string1 += x
+            string1=original * "   " + string1
+        elif original - list2[i] == 1:
+            for x in linesTwo[i]:
+                if x == "\"":
+                    flag += 1
+                if flag % 2 == 0 and x == "}":
+                    x = ""
+                if x == " ":
+                    x = ""
+                string1 += x
+            string1 = original * "   " + string1
+            if string1 == original * "   " + "\n":
+                string1 = ""
+        elif list2[i] == original:
+            string1 = original * "   " + linesTwo[i]
+        original = list2[i]
+        outFileLines.append("%s" % string1)
+
+    with open(filename+".py","w")as outFileTwo:
+        for i in outFileLines:
+            outFileTwo.write(i)
+    outFileTwo.close()
+
+    return()
