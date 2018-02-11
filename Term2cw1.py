@@ -111,7 +111,6 @@ def IgnoreCommentsAndStrings(s):
     return(lineList)
 
 def CreatePythonCodeAdvanced(filename):
-    inFileTwo = open("middlefile.bpy","r")
     lines, linesTwo, lineListOne, lineListTwo, outFileLines, chars = [], [], [], [], [], ["\"", "#", "{", "}"]
     original = 0
 
