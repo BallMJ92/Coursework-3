@@ -111,6 +111,7 @@ def IgnoreCommentsAndStrings(s):
     return(lineList)
 
 def CreatePythonCodeAdvanced(filename):
+    # Defining lists and variable for use in for loop code block
     lines, linesTwo, lineListOne, lineListTwo, outFileLines, chars = [], [], [], [], [], ["\"", "#", "{", "}"]
     original = 0
 
@@ -135,6 +136,7 @@ def CreatePythonCodeAdvanced(filename):
             linesTwo.append(i)
     inFileTwo.close()
 
+    # Loop striping indentation and reapply in relation to open and close braces
     for i in range(len(linesTwo)):
         string1 = str()
         flag = 0
@@ -144,26 +146,36 @@ def CreatePythonCodeAdvanced(filename):
                 if x == chars[0]:
                     flag += 1
                 if flag % 2 == 0 and x == chars[2]:
+                    # Adding colon to place where char is open brace
                     x = ":"
+                # Assing colon to string
                 string1 += x
+            # Generating new line consisting of indentation multiplied by original line indentation and string1
             string1=original * "   " + string1
         elif original - list2[i] == 1:
             for x in linesTwo[i]:
+                # Flagging occurence of backslash
                 if x == chars[0]:
                     flag += 1
+                # Checking if flag is even and if closing brace appeara in linesTwo list
                 if flag % 2 == 0 and x == chars[3]:
                     x = ""
+                # Checking for indentation
                 if x == " ":
                     x = ""
+                # Adding x from linesTwo list to string1 
                 string1 += x
             string1 = original * "   " + string1
+            # Checking if string1 includes original indentation and newline statement at end of line
             if string1 == original * "   " + "\n":
                 string1 = ""
         elif list2[i] == original:
             string1 = original * "   " + linesTwo[i]
         original = list2[i]
+        # Appending string1 to outFileLines list
         outFileLines.append("%s" % string1)
 
+    # Writing outFileLines list to original file
     with open(filename+".py","w")as outFileTwo:
         for i in outFileLines:
             outFileTwo.write(i)
